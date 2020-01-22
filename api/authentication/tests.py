@@ -46,7 +46,6 @@ class AuthLoginTest(AuthBaseTest):
     def test_login_user_with_valid_credentials(self):
         response = self.login_user("test_user", 'testing')
         # assert token key exists
-        print(response)
         self.assertIn('token', response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

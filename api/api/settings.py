@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'music',
-    'authentication'
+    'authentication',
+    'farms'
 ]
 
 # JWT settings

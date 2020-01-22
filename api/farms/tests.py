@@ -1,3 +1,76 @@
-from django.test import TestCase
+from rest_framework.test import APIClient, APITestCase, force_authenticate
+from .models import Location, Farm
+from django.urls import reverse
+from .selializers import FarmsSelializer, LocationSerializer 
+from rest_framework import status
+from authentication.tests import AuthBaseTest
+from django.contrib.auth.models import User
+import json
+import datetime
 
+DATE_FORMAT = '%y-%m-%d'
 # Create your tests here.
+class FarmBaseTest(APITestCase):
+    client = APIClient()
+
+    @staticmethod
+    def create_location(district='', city=''):
+        Location.objects.create(
+            district=district,
+            city=city
+        )
+
+    @staticmethod
+    def create_farm(name='', start_date='', location=None):
+        Farm.objects.create(
+            name=name,
+            start_date=start_date,
+            location=location
+        )
+
+    def setUp(self):
+        self.user = User.objects.create_superuser(
+            username="test_user",
+            email="test@mail.com",
+            password="testing",
+            first_name="test",
+            last_name="user",
+        )
+
+        self.create_location('wakiso', 'kakiri')
+        self.create_location('kampala', 'kasangati')
+        self.location = Location.objects.get(pk=1)
+        self.create_farm('kakiri Farm', '2020-06-01', self.location)
+
+
+class FarmsTests(FarmBaseTest):
+    
+    def test_list_farms(self):
+        url = reverse('farms-list-create', kwargs={'version':'v1'})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        expected = Farm.objects.all()
+        serialized = FarmsSelializer(expected, many=True)
+        self.assertEqual(serialized.data, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_farm(self):
+        url = reverse('farms-list-create', kwargs={'version':'v1'})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data = json.dumps({
+            'name': 'test farm',
+            'start_date': '2020-06-01',
+            'location': self.location.pk
+        }),
+        content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_farm_details(self):
+        url = reverse('farm-details', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        expected = Farm.objects.get(pk=1)
+        self.assertEqual(FarmsSelializer(expected).data, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
