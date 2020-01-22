@@ -8,9 +8,7 @@ from django.contrib.auth.models import User
 import json
 import datetime
 
-DATE_FORMAT = '%y-%m-%d'
-# Create your tests here.
-class FarmBaseTest(APITestCase):
+class BaseTest(APITestCase):
     client = APIClient()
 
     @staticmethod
@@ -43,7 +41,7 @@ class FarmBaseTest(APITestCase):
         self.create_farm('kakiri Farm', '2020-06-01', self.location)
 
 
-class FarmsTests(FarmBaseTest):
+class FarmsTests(BaseTest):
     
     def test_list_farms(self):
         url = reverse('farms-list-create', kwargs={'version':'v1'})
@@ -95,3 +93,56 @@ class FarmsTests(FarmBaseTest):
         farms_after_delete = Farm.objects.all().count()
         self.assertNotEqual(farms_before_delete, farms_after_delete)
         # self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class LocationsTests(BaseTest):
+    def test_list_locations(self):
+        url = reverse('locations-list-create', kwargs={'version':'v1'})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        expected = Location.objects.all()
+        serialized = LocationSerializer(expected, many=True)
+        self.assertEqual(serialized.data, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_location(self):
+        url = reverse('locations-list-create', kwargs={'version':'v1'})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data = json.dumps({
+            'district': 'bushenyi',
+            'city': 'ishaka',
+            'latitude': '0',
+            'longitude': '0'
+        }),
+        content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_location_details(self):
+        url = reverse('location-details', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        expected = Location.objects.get(pk=1)
+        self.assertEqual(LocationSerializer(expected).data, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_update_location_details(self):
+        url = reverse('location-details', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(url, data = json.dumps({
+            'district': 'updated location_district',
+        }),
+        content_type='application/json' 
+        )
+
+        expected = Location.objects.get(pk=1)
+        self.assertEqual(expected.district, 'updated location_district')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_farm_details(self):
+        url = reverse('location-details', kwargs={'version':'v1', 'pk':1})
+        locations_before_delete = Location.objects.all().count()
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(url)
+        locations_after_delete = Location.objects.all().count()
+        self.assertNotEqual(locations_before_delete, locations_after_delete)
