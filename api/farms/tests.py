@@ -74,3 +74,24 @@ class FarmsTests(FarmBaseTest):
         self.assertEqual(FarmsSelializer(expected).data, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
+    def test_update_farm_details(self):
+        url = reverse('farm-details', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(url, data = json.dumps({
+            'name': 'updated test_farm',
+        }),
+        content_type='application/json' 
+        )
+
+        expected = Farm.objects.get(pk=1)
+        self.assertEqual(expected.name, 'updated test_farm')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_farm_details(self):
+        url = reverse('farm-details', kwargs={'version':'v1', 'pk':1})
+        farms_before_delete = Farm.objects.all().count()
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(url)
+        farms_after_delete = Farm.objects.all().count()
+        self.assertNotEqual(farms_before_delete, farms_after_delete)
+        # self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
