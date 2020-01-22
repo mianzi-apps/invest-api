@@ -4,6 +4,7 @@ from rest_framework.views import Response, status
 from .models import Farm, Location
 from .selializers import FarmsSelializer, LocationSerializer
 from rest_framework_jwt.settings import api_settings
+from .decorators import validate_request_data
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -50,11 +51,12 @@ class FarmDetailsView(generics.RetrieveUpdateDestroyAPIView):
                     "message": "farm with id {} does not exist".format(kwargs['pk'])
                 }
             )
-    
+
+    @validate_request_data
     def put(self, request, *args, **kwargs):
         try:
             farm = Farm.objects.get(pk=kwargs['pk'])
-            serializer = FarmsSelializer
+            serializer = FarmsSelializer()
             update_farm = serializer.update(farm, request.data)
             return Response(FarmsSelializer(farm).data)
         
@@ -79,4 +81,3 @@ class FarmDetailsView(generics.RetrieveUpdateDestroyAPIView):
                     "message": "farm with id {} does not exist".format(kwargs['pk'])
                 }
             )
-        return super().delete(request, *args, **kwargs)
