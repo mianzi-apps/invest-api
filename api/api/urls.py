@@ -19,7 +19,7 @@ from django.contrib import admin
 from rest_framework import routers
 
 urlpatterns = [
-    re_path('api/(?P<version>(v1|v2))/', include('music.urls')),
+    re_path('api/(?P<version>(v1|v2))/', include('farms.urls')),
     re_path('api/(?P<version>(v1|v2))/', include('authentication.urls')),
     path('admin/', admin.site.urls)
 ]
