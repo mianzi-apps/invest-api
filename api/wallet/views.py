@@ -16,7 +16,7 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 # Create your views here.
 
 
-class WalletListView(generics.ListCreateAPIView):
+class WalletsListView(generics.ListCreateAPIView):
     """
     GET wallets/
     POST wallet/
