@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'farms',
-    'structures'
+    'structures',
+    'wallet'
 ]
 
 # JWT settings
