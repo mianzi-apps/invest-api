@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'farms',
     'structures',
     'wallet'
+    'projects',
+    'plants',
+    'animals'
 ]
 
 # JWT settings

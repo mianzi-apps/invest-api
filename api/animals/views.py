@@ -1,3 +1,9 @@
 from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+class AnimalCreateAPIView(generics.ListCreateAPIView):
+    pass
+
+
+class AnimalDetails(generics.RetrieveUpdateDestroyAPIView):
+    pass
