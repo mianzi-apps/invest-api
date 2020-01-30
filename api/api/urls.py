@@ -25,4 +25,5 @@ urlpatterns = [
     re_path('api/(?P<version>(v1|v2))/', include('structures.urls')),
     re_path('api/(?P<version>(v1|v2))/', include('wallet.urls')),
     re_path('api/(?P<version>(v1|v2))/', include('projects.urls')),
+    re_path('api/(?P<version>(v1|v2))/', include('transactions.urls')),
 ]
