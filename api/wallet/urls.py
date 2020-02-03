@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import WalletDetailsView,WalletListView
+from .views import WalletDetailsView, WalletListView
 
 urlpatterns = [
     path('wallet', WalletListView.as_view(), name='wallet-list-create'),

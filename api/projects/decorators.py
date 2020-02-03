@@ -17,3 +17,31 @@ def validated_data(fn):
         
         return fn(*args, **kwargs)
     return decorator
+
+def validate_profile_data(fn):
+    def decorator(*args, **kwargs):
+        # project_id = kwargs['pk']
+        project_stage = args[0].request.data.get('project_stage','')
+        stage_caption = args[0].request.data.get('stage_caption','')
+        detailed_explanation = args[0].request.data.get('detailed_explanation','')
+        images = args[0].request.data.get('images',[])
+
+        if not project_stage and not stage_caption and not detailed_explanation and not images:
+            return Response(
+                data={'massage':'project_stage, stage_caption, detailed_explanation, images are required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        return fn(*args, **kwargs)
+    return decorator
+
+def validate_image_data(fn):
+    def decorator(*args, **kwargs):
+        image_url = args[0].request.data.get('image_url','')
+           
+        if not image_url:
+            return Response(
+                data={'massage':'image_url is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        return fn(*args, **kwargs)
+    return decorator

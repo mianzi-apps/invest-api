@@ -25,8 +25,11 @@ class ProjectProfile(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 
+    @property
+    def images(self):
+        return ProjectProfileImage.objects.filter(profile_id=self.pk)
 
-class ProjectProfileImages(models.Model):
+class ProjectProfileImage(models.Model):
     profile_id = models.ForeignKey(ProjectProfile, on_delete=models.CASCADE)
     image_url = models.TextField(max_length=500)
     # can be used to give a short description about an activity taking place in a given image 
@@ -35,7 +38,7 @@ class ProjectProfileImages(models.Model):
     updated_at = models.DateField(auto_now=True)
 
 
-class ProjectExpenses(models.Model):
+class ProjectExpense(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     exp_type = models.CharField(max_length=200)
     amount = models.IntegerField()
@@ -45,7 +48,7 @@ class ProjectExpenses(models.Model):
     updated_at = models.DateField(auto_now=True)
 
 
-class ProjectEarnings(models.Model):
+class ProjectEarning(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     amount_earned = models.IntegerField() 
     date_earned = models.DateField()
