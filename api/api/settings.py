@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'authentication',
     'farms',
     'structures',
-    'wallet'
+    'wallet',
     'projects',
     'plants',
     'animals'
