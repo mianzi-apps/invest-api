@@ -11,6 +11,8 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 # Create your views here.
+
+
 class ListCreateFarmsView(generics.ListCreateAPIView):
     """
     GET farms/
@@ -19,16 +21,17 @@ class ListCreateFarmsView(generics.ListCreateAPIView):
     queryset = Farm.objects.all()
     serializer_class = FarmsSelializer
     permission_classes = (permissions.IsAuthenticated, )
-    
+
     def post(self, request, *args, **kwargs):
         name = request.data.get('name', '')
         location_id = request.data.get('location', '')
         start_date = request.data.get('start_date', '')
 
-        Farm.objects.create(name=name, 
-                                    location=Location.objects.get(pk=location_id), 
-                                    start_date=start_date)
+        Farm.objects.create(name=name,
+                            location=Location.objects.get(pk=location_id),
+                            start_date=start_date)
         return Response(status=status.HTTP_201_CREATED)
+
 
 class FarmDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -43,7 +46,7 @@ class FarmDetailsView(generics.RetrieveUpdateDestroyAPIView):
         try:
             farm = Farm.objects.get(pk=kwargs['pk'])
             return Response(FarmsSelializer(farm).data)
-        
+
         except Farm.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
@@ -59,7 +62,7 @@ class FarmDetailsView(generics.RetrieveUpdateDestroyAPIView):
             serializer = FarmsSelializer()
             update_farm = serializer.update(farm, request.data)
             return Response(FarmsSelializer(farm).data)
-        
+
         except Farm.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
@@ -91,7 +94,7 @@ class ListCreateLocationsView(generics.ListCreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = (permissions.IsAuthenticated, )
-    
+
     @validate_location_request_data
     def post(self, request, *args, **kwargs):
         district = request.data.get('district', '')
@@ -99,8 +102,8 @@ class ListCreateLocationsView(generics.ListCreateAPIView):
         latitude = request.data.get('latitude', '')
         longitude = request.data.get('longitude', '')
 
-        Location.objects.create(district=district, 
-                                city=city, 
+        Location.objects.create(district=district,
+                                city=city,
                                 latitude=latitude,
                                 longitude=longitude)
         return Response(status=status.HTTP_201_CREATED)
@@ -119,7 +122,7 @@ class LocationDetails(generics.RetrieveUpdateDestroyAPIView):
         try:
             location = Location.objects.get(pk=kwargs['pk'])
             return Response(LocationSerializer(location).data)
-        
+
         except Location.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
@@ -135,7 +138,7 @@ class LocationDetails(generics.RetrieveUpdateDestroyAPIView):
             serializer = LocationSerializer()
             update_location = serializer.update(location, request.data)
             return Response(LocationSerializer(update_location).data)
-        
+
         except Location.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
