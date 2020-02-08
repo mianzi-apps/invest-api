@@ -44,7 +44,7 @@ class TransactionDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
         except Transaction.DoesNotExist:
             return Response(data={
-                'massage': 'transaction with id {} was not found'.format(kwargs['pk'])
+                'message': 'transaction with id {} was not found'.format(kwargs['pk'])
             })
 
     @validated_data
@@ -57,7 +57,7 @@ class TransactionDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
         except Transaction.DoesNotExist:
             return Response(data={
-                'massage': 'transanction with id {} was not found'.format(kwargs['pk'])
+                'message': 'transanction with id {} was not found'.format(kwargs['pk'])
             })
 
     def delete(self, request, *args, **kwargs):
@@ -68,5 +68,5 @@ class TransactionDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
         except Transaction.DoesNotExist:
             return Response(data={
-                'massage': 'transaction with id {} was not found'.format(kwargs['pk'])
+                'message': 'transaction with id {} was not found'.format(kwargs['pk'])
             })

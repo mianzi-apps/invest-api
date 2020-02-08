@@ -28,4 +28,5 @@ urlpatterns = [
     re_path('api/(?P<version>(v1|v2))/', include('transactions.urls')),
     re_path('api/(?P<version>(v1|v2))/', include('animals.urls')),
     re_path('api/(?P<version>(v1|v2))/', include('plants.urls')),
+    re_path('api/(?P<version>(v1|v2))/', include('notifications.urls')),
 ]

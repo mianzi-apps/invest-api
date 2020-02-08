@@ -11,6 +11,7 @@ from rest_framework import status
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
+
 class ProjectListCreateAPIView(generics.ListCreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectsSerializer
@@ -22,18 +23,21 @@ class ProjectListCreateAPIView(generics.ListCreateAPIView):
         description = request.data.get('description', '')
         start_date = request.data.get('start_date', '')
         harvest_start_date = request.data.get('harvest_start_date', '')
-        estimated_harvest_duration = request.data.get('estimated_harvest_duration', '')
-        actual_harvest_end_date = request.data.get('actual_harvest_end_date', '')
+        estimated_harvest_duration = request.data.get(
+            'estimated_harvest_duration', '')
+        actual_harvest_end_date = request.data.get(
+            'actual_harvest_end_date', '')
 
         Project.objects.create(
-            alias=alias, 
-            description=description, 
+            alias=alias,
+            description=description,
             start_date=start_date,
-            harvest_start_date=harvest_start_date, 
-            estimated_harvest_duration=estimated_harvest_duration, 
+            harvest_start_date=harvest_start_date,
+            estimated_harvest_duration=estimated_harvest_duration,
             actual_harvest_end_date=actual_harvest_end_date
         )
         return Response(status=status.HTTP_201_CREATED)
+
 
 class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
@@ -44,7 +48,7 @@ class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
         try:
             project = Project.objects.get(pk=kwargs['pk'])
             return Response(data=ProjectsSerializer(project).data, status=status.HTTP_200_OK)
-        
+
         except Project.DoesNotExist:
             return Response(data={
                 'massage': 'project with id {} was not found'.format(kwargs['pk'])
@@ -57,7 +61,7 @@ class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
             serializer = ProjectsSerializer()
             update_project = serializer.update(project, request.data)
             return Response(data=ProjectsSerializer(project).data, status=status.HTTP_200_OK)
-        
+
         except Project.DoesNotExist:
             return Response(data={
                 'massage': 'project with id {} was not found'.format(kwargs['pk'])
@@ -68,17 +72,17 @@ class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
             project = Project.objects.get(pk=kwargs['pk'])
             project.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
         except Project.DoesNotExist:
             return Response(data={
                 'massage': 'project with id {} was not found'.format(kwargs['pk'])
-            })   
+            })
 
 
 class ProjectProfileListCreateAPIView(generics.ListCreateAPIView):
     queryset = ProjectProfile.objects.all()
     serializer_class = ProjectProfileSerializer
-    
+
     """
     NB. at a point of creating a project, is when the profile images are added
     structure for images 
@@ -96,6 +100,7 @@ class ProjectProfileListCreateAPIView(generics.ListCreateAPIView):
     GET profiles/:id <- project id
     POST profiles/:id <- project id
     """
+
     def get(self, request, *args, **kwargs):
         try:
             project = Project.objects.get(pk=kwargs['pk'])
@@ -105,19 +110,19 @@ class ProjectProfileListCreateAPIView(generics.ListCreateAPIView):
         except Project.DoesNotExist:
             return Response(
                 data={
-                    "massage" :'project with id {} does not exist'.format(kwargs['pk'])
+                    "massage": 'project with id {} does not exist'.format(kwargs['pk'])
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-    
+
     @validate_profile_data
     def post(self, request, *args, **kwargs):
         data = {
             'project_id': kwargs['pk'],
-            'project_stage': request.data.get('project_stage',''),
-            'stage_caption': request.data.get('stage_caption',''),
-            'detailed_explanation': request.data.get('detailed_explanation',''),
-            'images': request.data.get('images',[])
+            'project_stage': request.data.get('project_stage', ''),
+            'stage_caption': request.data.get('stage_caption', ''),
+            'detailed_explanation': request.data.get('detailed_explanation', ''),
+            'images': request.data.get('images', [])
         }
 
         try:
@@ -130,7 +135,7 @@ class ProjectProfileListCreateAPIView(generics.ListCreateAPIView):
         except Project.DoesNotExist:
             return Response(
                 data={
-                    "massage" :'project with id {} does not exist'.format(kwargs['pk'])
+                    "massage": 'project with id {} does not exist'.format(kwargs['pk'])
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -157,7 +162,7 @@ class ProjectProfileDetails(generics.RetrieveUpdateDestroyAPIView):
             return Response(data={
                 "message": 'project profile with id {} does not exist'.format(kwargs['pk'])
             })
-        
+
     @validate_profile_data
     def put(self, request, *args, **kwargs):
         try:
@@ -191,9 +196,9 @@ class ProfileImagesCreateAPIView(generics.CreateAPIView):
 
     @validate_image_data
     def post(self, request, *args, **kwargs):
-        image_url = request.data.get('image_url','')
-        image_caption = request.data.get('image_caption','')
-        
+        image_url = request.data.get('image_url', '')
+        image_caption = request.data.get('image_caption', '')
+
         try:
             profile = ProjectProfile.objects.get(pk=kwargs['pk'])
             serializer = ProjectProfileSerializer()
@@ -207,7 +212,7 @@ class ProfileImagesCreateAPIView(generics.CreateAPIView):
         except ProjectProfile.DoesNotExist:
             return Response(
                 data={
-                    "massage" :'profile with id {} does not exist'.format(kwargs['pk'])
+                    "massage": 'profile with id {} does not exist'.format(kwargs['pk'])
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -222,18 +227,18 @@ class ProfileImagesDestroyView(generics.DestroyAPIView):
     serializer_class = ProfileImageSerializer
 
     def delete(self, request, *args, **kwargs):
-        
+
         try:
             profile_image = ProjectProfileImage.objects.get(pk=kwargs['pk'])
             profile_image.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ProjectProfileImage.DoesNotExist:
             return Response(
-                    data={
-                        "massage" :'profile with id {} does not exist'.format(kwargs['pk'])
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
+                data={
+                    "massage": 'profile with id {} does not exist'.format(kwargs['pk'])
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class ProjectExpenseCreateAPIView(generics.ListCreateAPIView):
