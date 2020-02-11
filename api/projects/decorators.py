@@ -8,6 +8,8 @@ def validated_data(fn):
         start_date = args[0].request.data.get('start_date', '')
         harvest_start_date = args[0].request.data.get('harvest_start_date', '')
         estimated_harvest_duration = args[0].request.data.get('estimated_harvest_duration', '')
+        plants = args[0].request.data.get('plants',[])
+        animals = args[0].request.data.get('animals',[])
 
         if not alias and not description and not start_date and not harvest_start_date and not estimated_harvest_duration:
             return Response(data={
@@ -41,6 +43,32 @@ def validate_image_data(fn):
         if not image_url:
             return Response(
                 data={'massage':'image_url is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        return fn(*args, **kwargs)
+    return decorator
+
+
+def validate_animal_data(fn):
+    def decorator(*args, **kwargs):
+        animal_id = args[0].request.data.get('animal_id','')
+        no =  args[0].request.data.get('no','')  
+        if not animal_id and not no:
+            return Response(
+                data={'massage':'animal id and no is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        return fn(*args, **kwargs)
+    return decorator
+
+
+def validate_plant_data(fn):
+    def decorator(*args, **kwargs):
+        animal_id = args[0].request.data.get('animal_id','')
+        no =  args[0].request.data.get('no','')  
+        if not animal_id and not no:
+            return Response(
+                data={'massage':'animal id and no is required'}, 
                 status=status.HTTP_400_BAD_REQUEST
                 )
         return fn(*args, **kwargs)

@@ -3,10 +3,11 @@ from .models import Project, ProjectProfile
 from django.urls import reverse
 from .serializers import ProjectsSerializer, ProjectProfileSerializer
 from rest_framework import status
-from authentication.tests import AuthBaseTest
 from django.contrib.auth.models import User
 import json
 import datetime
+from plants.models import Plant
+from animals.models import Animal
 
 class BaseTest(APITestCase):
     client = APIClient()
@@ -14,14 +15,44 @@ class BaseTest(APITestCase):
     @staticmethod
     def create_project(alias='', description='', start_date="", harvest_start_date="", 
                 estimated_harvest_duration=0, actual_harvest_end_date=""):
-        return Project.objects.create(
-            alias=alias, 
-            description=description, 
-            start_date=start_date,
-            harvest_start_date=harvest_start_date, 
-            estimated_harvest_duration=estimated_harvest_duration, 
-            actual_harvest_end_date=actual_harvest_end_date
+        plant = Plant.objects.create(
+            english_name='Sweet pepper', 
+            scientific_name='capsicum', 
+            estimated_maturity_period=90
         )
+
+        animal = Animal.objects.create(
+            english_name='Rabbit', 
+            scientific_name='kkk', 
+            estimated_maturity_period=120
+        )
+
+        data={
+            "alias": alias,
+            "description": description,
+            "start_date": start_date,
+            "harvest_start_date": harvest_start_date,
+            "estimated_harvest_duration": estimated_harvest_duration,
+            "actual_harvest_end_date": actual_harvest_end_date,
+            "plants": [
+            {
+             'plant_id': plant.pk,
+             'no': 50
+            },
+            ],
+            "animals": [
+            {
+                'animal_id': animal.pk,
+                'no': 20
+            },
+            ]
+        }
+
+        serializer = ProjectsSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Project.objects.get(pk=1)
 
     @staticmethod
     def create_project_profile(project=None, stage='', caption='', explanation='', images=[]):
@@ -33,9 +64,9 @@ class BaseTest(APITestCase):
             "images":images
         }
         
-        serialiser = ProjectProfileSerializer(data=data)
-        serialiser.is_valid(raise_exception=True)
-        serialiser.save()
+        serializer = ProjectProfileSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         
 
     def setUp(self):
@@ -113,6 +144,59 @@ class ProjectTests(BaseTest):
         response = self.client.delete(url)
         projects_after_delete = Project.objects.all().count()
         self.assertNotEqual(projects_before_delete, projects_after_delete)
+
+    def test_add_project_plant(self):
+        url = reverse('project-plant-add', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        plant = Plant.objects.create(
+            english_name='Sweet pepper', 
+            scientific_name='capsicum', 
+            estimated_maturity_period=90
+        )
+        data = json.dumps({
+            "plant_id":plant.pk,
+            'no': 500
+        })
+        before_project = Project.objects.get(pk=1)
+        response = self.client.post(url, data=data, content_type='application/json')
+        new_project = Project.objects.get(pk=1)
+        self.assertNotEqual(before_project.plants.count,new_project.plants.count)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_remove_project_plant(self):
+        url = reverse('project-plant-remove', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        before_project = Project.objects.get(pk=1)
+        response = self.client.delete(url)
+        new_project = Project.objects.get(pk=1)
+        self.assertNotEqual(before_project.plants.count,new_project.plants.count)
+
+    def test_add_project_animal(self):
+        url = reverse('project-animal-add', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        animal = Animal.objects.create(
+            english_name='Sweet pepper', 
+            scientific_name='capsicum', 
+            estimated_maturity_period=90
+        )
+        data = json.dumps({
+            "animal_id":animal.pk,
+            'no': 500
+        })
+
+        before_project = Project.objects.get(pk=1)
+        response = self.client.post(url, data=data, content_type='application/json')
+        new_project = Project.objects.get(pk=1)
+        self.assertNotEqual(before_project.animals.count,new_project.animals.count)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_remove_project_animal(self):
+        url = reverse('project-animal-remove', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        before_project = Project.objects.get(pk=1)
+        response = self.client.delete(url)
+        new_project = Project.objects.get(pk=1)
+        self.assertNotEqual(before_project.animals.count,new_project.animals.count)
 
 
 class ProjectProfilesTests(BaseTest):
