@@ -14,6 +14,13 @@ class Project(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 
+    @property
+    def plants(self):
+        return ProjectPlant.objects.filter(project_id=self.pk)
+
+    @property
+    def animals(self):
+        return ProjectAnimal.objects.filter(project_id=self.pk)
 
 class ProjectProfile(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
