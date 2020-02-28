@@ -1,9 +1,25 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions
-from .models import Project, ProjectProfile, ProjectProfileImage, ProjectAnimal, ProjectPlant
-from .serializers import ProjectsSerializer, ProjectProfileSerializer, ProfileImageSerializer
+from .models import (Project,
+                    ProjectProfile, 
+                    ProjectProfileImage, 
+                    ProjectAnimal, 
+                    ProjectPlant,
+                    ProjectExpense,
+                    ProjectEarning)
+from .serializers import (ProjectsSerializer, 
+                        ProjectProfileSerializer, 
+                        ProfileImageSerializer,
+                        ProjectExpenseSerializer,
+                        ProjectEarningSerializer)
 from rest_framework_jwt.settings import api_settings
-from .decorators import validated_data, validate_profile_data, validate_image_data, validate_animal_data, validate_plant_data
+from .decorators import (validated_data, 
+                        validate_profile_data, 
+                        validate_image_data, 
+                        validate_animal_data, 
+                        validate_plant_data,
+                        validate_expenses_data,
+                        validate_earnings_data)
 from rest_framework.response import Response
 from rest_framework import status
 from animals.models import Animal
@@ -100,6 +116,185 @@ class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
             return Response(data={
                 'massage': 'project with id {} was not found'.format(kwargs['pk'])
             })
+
+class ProjectExpensesListCreateAPIView(generics.ListCreateAPIView):
+    queryset = ProjectExpense.objects.all()
+    serializer_class = ProjectExpenseSerializer
+
+    """
+    get all expenses for a given project
+    GET expenses/:id <- project id
+    POST expenses/:id <- project id
+    """
+
+    def get(self, request, *args, **kwargs):
+        try:
+            project = Project.objects.get(pk=kwargs['pk'])
+            expenses = ProjectExpense.objects.filter(project_id=project)
+            data = ProjectExpenseSerializer(expenses, many=True).data
+            return Response(data=data, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response(
+                data={
+                    "massage": 'project with id {} does not exist'.format(kwargs['pk'])
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @validate_expenses_data
+    def post(self, request, *args, **kwargs):
+        try:
+            project = Project.objects.get(pk=kwargs['pk'])
+            ProjectExpense.objects.create(
+                project_id = project,
+                exp_type = request.data.get('exp_type', ''),
+                amount= request.data.get('amount', ''),
+                comment= request.data.get('comment', ''),
+                date_spent = request.data.get('date_spent', '')
+            )
+            return Response(status=status.HTTP_201_CREATED)
+
+        except Project.DoesNotExist:
+            return Response(
+                data={
+                    "massage": 'project with id {} does not exist'.format(kwargs['pk'])
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ProjectExpensesDetails(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get a particular profile i.e with its images
+    update profile info
+    delete profile
+    NB. main difference is the (s) on the url
+    GET expense/:id
+    PUT expense/:id
+    DELETE expense/:id
+    """
+    queryset = ProjectExpense.objects.all()
+    serializer_class = ProjectExpenseSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            expense = ProjectExpense.objects.get(pk=kwargs['pk'])
+            return Response(data=ProjectExpenseSerializer(expense).data, status=status.HTTP_200_OK)
+        except ProjectExpense.DoesNotExist:
+            return Response(data={
+                "message": 'project expense with id {} does not exist'.format(kwargs['pk'])
+            })
+
+    @validate_expenses_data 
+    def put(self, request, *args, **kwargs):
+        try:
+            expense = ProjectExpense.objects.get(pk=kwargs['pk'])
+            serializer = ProjectExpenseSerializer()
+            serializer.update(expense, request.data)
+            return Response(status=status.HTTP_200_OK)
+        except ProjectExpense.DoesNotExist:
+            return Response(data={
+                "message": 'project expense with id {} does not exist'.format(kwargs['pk'])
+            })
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            expense = ProjectExpense.objects.get(pk=kwargs['pk'])
+            expense.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProjectExpense.DoesNotExist:
+            return Response(data={
+                "message": 'project expense with id {} does not exist'.format(kwargs['pk'])
+            })
+
+
+class ProjectEarningsListCreateAPIView(generics.ListCreateAPIView):
+    queryset = ProjectEarning.objects.all()
+    serializer_class = ProjectEarningSerializer
+
+    """
+    get all earnings for a given project
+    GET earnings/:id <- project id
+    POST earnings/:id <- project id
+    """
+
+    def get(self, request, *args, **kwargs):
+        try:
+            project = Project.objects.get(pk=kwargs['pk'])
+            earnings = ProjectEarning.objects.filter(project_id=project)
+            data = ProjectEarningSerializer(earnings, many=True).data
+            return Response(data=data, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response(
+                data={
+                    "massage": 'project with id {} does not exist'.format(kwargs['pk'])
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @validate_earnings_data
+    def post(self, request, *args, **kwargs):
+        
+        try:
+            project = Project.objects.get(pk=kwargs['pk'])
+            ProjectEarning.objects.create(
+                project_id = project,
+                amount_earned= request.data.get('amount_earned', ''),
+                date_earned = request.data.get('date_earned', '')
+            )
+            return Response(status=status.HTTP_201_CREATED)
+
+        except Project.DoesNotExist:
+            return Response(
+                data={
+                    "massage": 'project with id {} does not exist'.format(kwargs['pk'])
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ProjectEarningsDetails(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get a particular earning
+    NB. main difference is the (s) on the url
+    GET earning/:id
+    PUT earning/:id
+    DELETE earning/:id
+    """
+    queryset = ProjectEarning.objects.all()
+    serializer_class = ProjectEarningSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            earning = ProjectEarning.objects.get(pk=kwargs['pk'])
+            return Response(data=ProjectEarningSerializer(earning).data, status=status.HTTP_200_OK)
+        except ProjectEarning.DoesNotExist:
+            return Response(data={
+                "message": 'project earning with id {} does not exist'.format(kwargs['pk'])
+            })
+
+    @validate_earnings_data
+    def put(self, request, *args, **kwargs):
+        try:
+            earning = ProjectEarning.objects.get(pk=kwargs['pk'])
+            serializer = ProjectEarningSerializer()
+            serializer.update(earning, request.data)
+            return Response(status=status.HTTP_200_OK)
+        except ProjectEarning.DoesNotExist:
+            return Response(data={
+                "message": 'project earning with id {} does not exist'.format(kwargs['pk'])
+            })
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            earning = ProjectEarning.objects.get(pk=kwargs['pk'])
+            earning.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProjectEarning.DoesNotExist:
+            return Response(data={
+                "message": 'project earning with id {} does not exist'.format(kwargs['pk'])
+            })
+
 
 class ProjectPlantCreateAPIView(generics.CreateAPIView):
     """
@@ -209,6 +404,7 @@ class ProjectAnimalDestroyView(generics.DestroyAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
 
 class ProjectProfileListCreateAPIView(generics.ListCreateAPIView):
     queryset = ProjectProfile.objects.all()
@@ -370,19 +566,3 @@ class ProfileImagesDestroyView(generics.DestroyAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-
-class ProjectExpenseCreateAPIView(generics.ListCreateAPIView):
-    pass
-
-
-class ProjectExpenseDetails(generics.RetrieveUpdateDestroyAPIView):
-    pass
-
-
-class ProjectEarningCreateAPIView(generics.ListCreateAPIView):
-    pass
-
-
-class ProjectEarningDetails(generics.RetrieveUpdateDestroyAPIView):
-    pass
