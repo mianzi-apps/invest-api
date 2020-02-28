@@ -1,5 +1,12 @@
 from rest_framework import serializers
-from .models import Project, ProjectAnimal, ProjectPlant, ProjectEarning, ProjectExpense, ProjectProfile, ProjectProfileImage
+from .models import (Project,
+                    ProjectAnimal, 
+                    ProjectPlant, 
+                    ProjectEarning, 
+                    ProjectExpense, 
+                    ProjectProfile,
+                    ProjectProfileImage)
+
 from animals.serializers import AnimalSerializer
 from plants.serializers import PlantSerializer
 
@@ -59,12 +66,14 @@ class ProjectProfileSerializer(serializers.ModelSerializer):
             ProjectProfileImage.objects.create(profile_id=profile, **image)
         return profile
 
-    # def to_representation(self, value):
-    #     """
-    #     Serialize ProjectProfileImage instances using a ProjectProfileImage serializer
-    #     """
-    #     if isinstance(value, ProjectProfileImage):
-    #         serializer = ProfileImageSerializer(value)
-    #     else:
-    #         raise Exception('Unexpected type of tagged object')
-    #     return serializer.data
+
+class ProjectExpenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectExpense
+        fields = ('exp_type', 'amount', 'comment', 'date_spent')
+
+
+class ProjectEarningSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectEarning
+        fields = ('amount_earned', 'date_earned')

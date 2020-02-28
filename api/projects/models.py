@@ -51,7 +51,7 @@ class ProjectExpense(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     exp_type = models.CharField(max_length=200)
     amount = models.IntegerField()
-    comment = models.TextField(max_length=400)
+    comment = models.TextField(max_length=400, null=True, blank=True)
     date_spent = models.DateField()
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)

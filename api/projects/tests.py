@@ -1,7 +1,7 @@
 from rest_framework.test import APIClient, APITestCase, force_authenticate
-from .models import Project, ProjectProfile
+from .models import Project, ProjectProfile, ProjectEarning, ProjectExpense
 from django.urls import reverse
-from .serializers import ProjectsSerializer, ProjectProfileSerializer
+from .serializers import ProjectsSerializer, ProjectProfileSerializer, ProjectEarningSerializer, ProjectExpenseSerializer
 from rest_framework import status
 from django.contrib.auth.models import User
 import json
@@ -67,7 +67,24 @@ class BaseTest(APITestCase):
         serializer = ProjectProfileSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        
+    
+    @staticmethod
+    def create_project_expenses(project=None):
+        ProjectExpense.objects.create(
+            project_id = project,
+            exp_type = 'setup',
+            amount= 200000,
+            comment= 'testing just',
+            date_spent = '2020-01-01'
+        )
+
+    @staticmethod
+    def create_project_earnings(project=None):
+        ProjectEarning.objects.create(
+            project_id = project,
+            amount_earned= 200000,
+            date_earned = '2020-01-01'
+        )
 
     def setUp(self):
         self.user = User.objects.create_superuser(
@@ -90,6 +107,8 @@ class BaseTest(APITestCase):
         self.project=self.create_project('kla gh 01', 'our first green house', '2020-01-01', '2020-02-02', 90, '2020-02-03')
         self.create_project_profile(self.project, '2 weeks', 'kla gh 2010', 'non ', images)
         self.create_project_profile(self.project, '3 weeks', 'kla gh 2011', 'non2 ', images)
+        self.create_project_expenses(self.project)
+        self.create_project_earnings(self.project)
 
 class ProjectTests(BaseTest):
     
@@ -145,6 +164,8 @@ class ProjectTests(BaseTest):
         projects_after_delete = Project.objects.all().count()
         self.assertNotEqual(projects_before_delete, projects_after_delete)
 
+
+class ProjectPlantTests(BaseTest):
     def test_add_project_plant(self):
         url = reverse('project-plant-add', kwargs={'version':'v1', 'pk':1})
         self.client.force_authenticate(user=self.user)
@@ -171,6 +192,8 @@ class ProjectTests(BaseTest):
         new_project = Project.objects.get(pk=1)
         self.assertNotEqual(before_project.plants.count,new_project.plants.count)
 
+
+class ProjectAnimalTests(BaseTest):
     def test_add_project_animal(self):
         url = reverse('project-animal-add', kwargs={'version':'v1', 'pk':1})
         self.client.force_authenticate(user=self.user)
@@ -273,3 +296,96 @@ class ProjectProfilesTests(BaseTest):
         response = self.client.delete(url)
         new_profile = ProjectProfile.objects.get(pk=1)
         self.assertNotEqual(before_profile.images.count,new_profile.images.count)
+
+
+class ProjectExpenses(BaseTest):
+    def test_list_expenses(self):
+        url = reverse('project-expense-list-create', kwargs={'version':'v1', 'pk':1})
+        response = self.client.get(url)
+        expected = ProjectExpense.objects.filter(project_id=1)
+        serialized = ProjectExpenseSerializer(expected, many=True)
+        self.assertEqual(serialized.data, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_expense(self):
+        url = reverse('project-expense-list-create', kwargs={'version':'v1', 'pk':1})
+        data=json.dumps({
+            'project_id': 1,
+            'exp_type': 'salary',
+            'amount': 200000,
+            'comment': 'akims salary',
+            'date_spent': '2020-01-01'
+        })
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_expense(self):
+        url = reverse('project-expense-details', kwargs={'version':'v1', 'pk':1})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_update_expense(self):
+        url = reverse('project-expense-details', kwargs={'version':'v1', 'pk':1})
+        data = json.dumps({
+           'amount': 400000, 
+        })
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(url, data=data, content_type='application/json')
+        changed_expense = ProjectExpense.objects.get(pk=1)
+        self.assertEqual(changed_expense.amount, 400000)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_expense(self):
+        url = reverse('project-expense-details', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        before_expenses = ProjectExpense.objects.all().count()
+        response = self.client.delete(url)
+        after_expenses = ProjectExpense.objects.all().count()
+        self.assertNotEqual(before_expenses,after_expenses)
+
+
+class ProjectEarnings(BaseTest):
+    def test_list_earnings(self):
+        url = reverse('project-earning-list-create', kwargs={'version':'v1', 'pk':1})
+        response = self.client.get(url)
+        expected = ProjectEarning.objects.filter(project_id=1)
+        serialized = ProjectEarningSerializer(expected, many=True)
+        self.assertEqual(serialized.data, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_earning(self):
+        url = reverse('project-earning-list-create', kwargs={'version':'v1', 'pk':1})
+        data=json.dumps({
+            'project_id': 1,
+            "amount_earned": 200000,
+            "date_earned" : '2020-01-01'
+        })
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data=data, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_earning(self):
+        url = reverse('project-earning-details', kwargs={'version':'v1', 'pk':1})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_update_earning(self):
+        url = reverse('project-earning-details', kwargs={'version':'v1', 'pk':1})
+        data = json.dumps({
+           'amount_earned': 400000, 
+        })
+        self.client.force_authenticate(user=self.user)
+        response = self.client.put(url, data=data, content_type='application/json')
+        changed_earning = ProjectEarning.objects.get(pk=1)
+        self.assertEqual(changed_earning.amount_earned, 400000)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_earning(self):
+        url = reverse('project-earning-details', kwargs={'version':'v1', 'pk':1})
+        self.client.force_authenticate(user=self.user)
+        before_earnings = ProjectEarning.objects.all().count()
+        response = self.client.delete(url)
+        after_earnings = ProjectEarning.objects.all().count()
+        self.assertNotEqual(before_earnings,after_earnings)
+

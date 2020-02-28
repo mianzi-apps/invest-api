@@ -7,9 +7,9 @@ class Transaction(models.Model):
         ('W','withdraw')
     )
     STATUSES = (
-        ('P','pending'),
-        ('C','complete'),
-        ('C','canceled')
+        ('pe','pending'),
+        ('co','complete'),
+        ('ca','canceled')
     )
     amount = models.DecimalField(max_digits=40, decimal_places=2)
     date = models.DateField(auto_now_add=True)

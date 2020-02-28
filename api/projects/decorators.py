@@ -73,3 +73,31 @@ def validate_plant_data(fn):
                 )
         return fn(*args, **kwargs)
     return decorator
+
+
+def validate_expenses_data(fn):
+    def decorator(*args, **kwargs):
+        exp_type = args[0].request.data.get('exp_type','')
+        amount =  args[0].request.data.get('amount','') 
+        comment =  args[0].request.data.get('comment','') 
+        date_spent =  args[0].request.data.get('date_spent','')  
+
+        if not exp_type and not amount and not date_spent:
+            return Response(
+                data={'massage':'exp_type amount and date_spent are required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        return fn(*args, **kwargs)
+    return decorator
+
+def validate_earnings_data(fn):
+    def decorator(*args, **kwargs):
+        amount_earned = args[0].request.data.get('amount_earned','')
+        date_earned =  args[0].request.data.get('date_earned','')  
+        if not amount_earned and not date_earned:
+            return Response(
+                data={'massage':'amount_earned and date_earned are required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        return fn(*args, **kwargs)
+    return decorator
