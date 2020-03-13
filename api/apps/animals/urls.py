@@ -1,4 +1,5 @@
 from django.urls import path
+
 from api.apps.animals.views import AnimalListCreateAPIView, AnimalDetailsAPIView
 
 urlpatterns = [

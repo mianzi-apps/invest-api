@@ -1,18 +1,19 @@
-from rest_framework.test import APIClient, APITestCase, force_authenticate
-from api.apps.wallet.models import Wallet
-from django.urls import reverse
-from api.apps.wallet.serializers import WalletSerializer
-from rest_framework import status
-from api.apps.authentication.tests import AuthBaseTest
-from api.apps.authentication.models import User
 import json
+
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+
+from api.apps.authentication.models import User
+from api.apps.wallet.models import Wallet
+from api.apps.wallet.serializers import WalletSerializer
 
 
 class BaseTest(APITestCase):
     client = APIClient()
 
     @staticmethod
-    def create_wallet(user_id="",balance=""):
+    def create_wallet(user_id="", balance=""):
         Wallet.objects.create(
             user_id=user_id,
             balance=balance
@@ -26,8 +27,8 @@ class BaseTest(APITestCase):
             last_name="user",
             contact="0750532902"
         )
-        user =User.objects.get(pk=self.user.pk)
-        self.create_wallet(user,300.0)
+        user = User.objects.get(pk=self.user.pk)
+        self.create_wallet(user, 300.0)
 
 
 class WalletTests(BaseTest):
@@ -44,11 +45,11 @@ class WalletTests(BaseTest):
         url = reverse('wallet-list-create', kwargs={'version': 'v1'})
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=json.dumps({
-            "user_id":self.user.pk,
+            "user_id": self.user.pk,
             "balance": 400.0,
         }),
-            content_type='application/json'
-        )
+                                    content_type='application/json'
+                                    )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_wallet_details(self):
@@ -65,8 +66,8 @@ class WalletTests(BaseTest):
         response = self.client.put(url, data=json.dumps({
             'balance': 6000.0,
         }),
-            content_type='application/json'
-        )
+                                   content_type='application/json'
+                                   )
 
         expected = Wallet.objects.get(pk=1)
         self.assertEqual(expected.balance, 6000.0)

@@ -14,6 +14,7 @@ def validate_request_data(fn):
                 status=status.HTTP_400_BAD_REQUEST
             )
         return fn(*args, **kwargs)
+
     return decorated
 
 
@@ -32,4 +33,5 @@ def validate_location_request_data(fn):
                 status=status.HTTP_400_BAD_REQUEST
             )
         return fn(*args, **kwargs)
+
     return decorated

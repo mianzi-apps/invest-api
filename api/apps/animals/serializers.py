@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from api.apps.animals.models import Animal
+
 
 class AnimalSerializer(serializers.ModelSerializer):
     class Meta:

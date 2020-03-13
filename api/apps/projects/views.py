@@ -1,36 +1,29 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions
-<<<<<<< HEAD:api/projects/views.py
-from .models import (Project,
-                    ProjectProfile, 
-                    ProjectProfileImage, 
-                    ProjectAnimal, 
-                    ProjectPlant,
-                    ProjectExpense,
-                    ProjectEarning)
-from .serializers import (ProjectsSerializer, 
-                        ProjectProfileSerializer, 
-                        ProfileImageSerializer,
-                        ProjectExpenseSerializer,
-                        ProjectEarningSerializer)
-from rest_framework_jwt.settings import api_settings
-from .decorators import (validated_data, 
-                        validate_profile_data, 
-                        validate_image_data, 
-                        validate_animal_data, 
-                        validate_plant_data,
-                        validate_expenses_data,
-                        validate_earnings_data)
-=======
-from api.apps.projects.models import Project, ProjectProfile, ProjectProfileImage, ProjectAnimal, ProjectPlant
-from api.apps.projects.serializers import ProjectsSerializer, ProjectProfileSerializer, ProfileImageSerializer
-from rest_framework_jwt.settings import api_settings
-from api.apps.projects.decorators import validated_data, validate_profile_data, validate_image_data, validate_animal_data, validate_plant_data
->>>>>>> Extending the user model:api/apps/projects/views.py
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework_jwt.settings import api_settings
+
 from api.apps.animals.models import Animal
 from api.apps.plants.models import Plant
+from api.apps.projects.decorators import (validated_data,
+                                          validate_profile_data,
+                                          validate_image_data,
+                                          validate_animal_data,
+                                          validate_plant_data,
+                                          validate_expenses_data,
+                                          validate_earnings_data)
+from api.apps.projects.models import (Project,
+                                      ProjectProfile,
+                                      ProjectProfileImage,
+                                      ProjectAnimal,
+                                      ProjectPlant,
+                                      ProjectExpense,
+                                      ProjectEarning)
+from api.apps.projects.serializers import (ProjectsSerializer,
+                                           ProjectProfileSerializer,
+                                           ProfileImageSerializer,
+                                           ProjectExpenseSerializer,
+                                           ProjectEarningSerializer)
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -40,8 +33,8 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 class ProjectListCreateAPIView(generics.ListCreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectsSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-  
+    permission_classes = (permissions.IsAuthenticated,)
+
     """
     NB. at a point of creating a project, is when the animals and plants are added
     structure for plants 
@@ -62,10 +55,10 @@ class ProjectListCreateAPIView(generics.ListCreateAPIView):
         ]
     }
     """
+
     @validated_data
     def post(self, request, *args, **kwargs):
-
-        data={
+        data = {
             'alias': request.data.get('alias', ''),
             'description': request.data.get('description', ''),
             'start_date': request.data.get('start_date', ''),
@@ -74,10 +67,10 @@ class ProjectListCreateAPIView(generics.ListCreateAPIView):
                 'estimated_harvest_duration', ''),
             'actual_harvest_end_date': request.data.get(
                 'actual_harvest_end_date', ''),
-            'plants':request.data.get('animals', []),
+            'plants': request.data.get('animals', []),
             'animals': request.data.get('plants', [])
         }
-        
+
         project = ProjectsSerializer(data=data)
         project.is_valid(raise_exception=True)
         project.save()
@@ -87,7 +80,7 @@ class ProjectListCreateAPIView(generics.ListCreateAPIView):
 class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectsSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         try:
@@ -124,6 +117,7 @@ class ProjectDetailsView(generics.RetrieveUpdateDestroyAPIView):
                 'massage': 'project with id {} was not found'.format(kwargs['pk'])
             })
 
+
 class ProjectExpensesListCreateAPIView(generics.ListCreateAPIView):
     queryset = ProjectExpense.objects.all()
     serializer_class = ProjectExpenseSerializer
@@ -153,11 +147,11 @@ class ProjectExpensesListCreateAPIView(generics.ListCreateAPIView):
         try:
             project = Project.objects.get(pk=kwargs['pk'])
             ProjectExpense.objects.create(
-                project_id = project,
-                exp_type = request.data.get('exp_type', ''),
-                amount= request.data.get('amount', ''),
-                comment= request.data.get('comment', ''),
-                date_spent = request.data.get('date_spent', '')
+                project_id=project,
+                exp_type=request.data.get('exp_type', ''),
+                amount=request.data.get('amount', ''),
+                comment=request.data.get('comment', ''),
+                date_spent=request.data.get('date_spent', '')
             )
             return Response(status=status.HTTP_201_CREATED)
 
@@ -192,7 +186,7 @@ class ProjectExpensesDetails(generics.RetrieveUpdateDestroyAPIView):
                 "message": 'project expense with id {} does not exist'.format(kwargs['pk'])
             })
 
-    @validate_expenses_data 
+    @validate_expenses_data
     def put(self, request, *args, **kwargs):
         try:
             expense = ProjectExpense.objects.get(pk=kwargs['pk'])
@@ -241,13 +235,13 @@ class ProjectEarningsListCreateAPIView(generics.ListCreateAPIView):
 
     @validate_earnings_data
     def post(self, request, *args, **kwargs):
-        
+
         try:
             project = Project.objects.get(pk=kwargs['pk'])
             ProjectEarning.objects.create(
-                project_id = project,
-                amount_earned= request.data.get('amount_earned', ''),
-                date_earned = request.data.get('date_earned', '')
+                project_id=project,
+                amount_earned=request.data.get('amount_earned', ''),
+                date_earned=request.data.get('date_earned', '')
             )
             return Response(status=status.HTTP_201_CREATED)
 
@@ -356,6 +350,7 @@ class ProjectPlantDestroyView(generics.DestroyAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
 
 class ProjectAnimalCreateAPIView(generics.CreateAPIView):
     """

@@ -1,5 +1,5 @@
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
 
 
 def validated_data(fn):
@@ -14,4 +14,5 @@ def validated_data(fn):
             )
 
         return fn(*args, **kwargs)
+
     return decorator

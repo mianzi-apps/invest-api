@@ -1,12 +1,13 @@
-from rest_framework.test import APIClient, APITestCase, force_authenticate
-from api.apps.farms.models import Location, Farm
-from django.urls import reverse
-from api.apps.farms.selializers import FarmsSelializer, LocationSerializer 
-from rest_framework import status
-from api.apps.authentication.tests import AuthBaseTest
-from api.apps.authentication.models import User
 import json
-import datetime
+
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+
+from api.apps.authentication.models import User
+from api.apps.farms.models import Location, Farm
+from api.apps.farms.selializers import FarmsSelializer, LocationSerializer
+
 
 class BaseTest(APITestCase):
     client = APIClient()
@@ -42,9 +43,9 @@ class BaseTest(APITestCase):
 
 
 class FarmsTests(BaseTest):
-    
+
     def test_list_farms(self):
-        url = reverse('farms-list-create', kwargs={'version':'v1'})
+        url = reverse('farms-list-create', kwargs={'version': 'v1'})
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         expected = Farm.objects.all()
@@ -53,40 +54,40 @@ class FarmsTests(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_farm(self):
-        url = reverse('farms-list-create', kwargs={'version':'v1'})
+        url = reverse('farms-list-create', kwargs={'version': 'v1'})
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data = json.dumps({
+        response = self.client.post(url, data=json.dumps({
             'name': 'test farm',
             'start_date': '2020-06-01',
             'location': self.location.pk
         }),
-        content_type='application/json'
-        )
+                                    content_type='application/json'
+                                    )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_farm_details(self):
-        url = reverse('farm-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('farm-details', kwargs={'version': 'v1', 'pk': 1})
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         expected = Farm.objects.get(pk=1)
         self.assertEqual(FarmsSelializer(expected).data, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
+
     def test_update_farm_details(self):
-        url = reverse('farm-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('farm-details', kwargs={'version': 'v1', 'pk': 1})
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(url, data = json.dumps({
+        response = self.client.put(url, data=json.dumps({
             'name': 'updated test_farm',
         }),
-        content_type='application/json' 
-        )
+                                   content_type='application/json'
+                                   )
 
         expected = Farm.objects.get(pk=1)
         self.assertEqual(expected.name, 'updated test_farm')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_farm_details(self):
-        url = reverse('farm-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('farm-details', kwargs={'version': 'v1', 'pk': 1})
         farms_before_delete = Farm.objects.all().count()
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(url)
@@ -97,7 +98,7 @@ class FarmsTests(BaseTest):
 
 class LocationsTests(BaseTest):
     def test_list_locations(self):
-        url = reverse('locations-list-create', kwargs={'version':'v1'})
+        url = reverse('locations-list-create', kwargs={'version': 'v1'})
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         expected = Location.objects.all()
@@ -106,41 +107,41 @@ class LocationsTests(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_location(self):
-        url = reverse('locations-list-create', kwargs={'version':'v1'})
+        url = reverse('locations-list-create', kwargs={'version': 'v1'})
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data = json.dumps({
+        response = self.client.post(url, data=json.dumps({
             'district': 'bushenyi',
             'city': 'ishaka',
             'latitude': '0',
             'longitude': '0'
         }),
-        content_type='application/json'
-        )
+                                    content_type='application/json'
+                                    )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_location_details(self):
-        url = reverse('location-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('location-details', kwargs={'version': 'v1', 'pk': 1})
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         expected = Location.objects.get(pk=1)
         self.assertEqual(LocationSerializer(expected).data, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
+
     def test_update_location_details(self):
-        url = reverse('location-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('location-details', kwargs={'version': 'v1', 'pk': 1})
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(url, data = json.dumps({
+        response = self.client.put(url, data=json.dumps({
             'district': 'updated location_district',
         }),
-        content_type='application/json' 
-        )
+                                   content_type='application/json'
+                                   )
 
         expected = Location.objects.get(pk=1)
         self.assertEqual(expected.district, 'updated location_district')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_farm_details(self):
-        url = reverse('location-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('location-details', kwargs={'version': 'v1', 'pk': 1})
         locations_before_delete = Location.objects.all().count()
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(url)

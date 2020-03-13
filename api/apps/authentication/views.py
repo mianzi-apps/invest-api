@@ -1,11 +1,11 @@
-from django.shortcuts import render
 from django.contrib.auth import authenticate, login
-from api.apps.authentication.models import User
 from rest_framework import generics
-from api.apps.authentication.serializers import TokenSerializer, UserSerializer
 from rest_framework import permissions
-from rest_framework_jwt.settings import api_settings
 from rest_framework.views import status, Response
+from rest_framework_jwt.settings import api_settings
+
+from api.apps.authentication.models import User
+from api.apps.authentication.serializers import TokenSerializer, UserSerializer
 
 # Get the JWT settings, add these lines after the import/from lines
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -59,10 +59,10 @@ class RegisterView(generics.CreateAPIView):
                 "massage": " password, first_name, last_name, email and contact is required to register a user"
             }, status=status.HTTP_400_BAD_REQUEST)
         new_user = User.objects.create_user(
-                                password=password,
-                                            first_name=first_name,
-                                            last_name=last_name,
-                                            email=email,
-                                            contact=contact,
-                                            )
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            contact=contact,
+        )
         return Response(status=status.HTTP_201_CREATED)

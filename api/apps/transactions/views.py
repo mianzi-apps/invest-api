@@ -1,12 +1,11 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework_jwt.settings import api_settings
+
+from api.apps.transactions.decorators import validated_data
 from api.apps.transactions.models import Transaction
 from api.apps.transactions.serializers import TransactionSerializer
-from rest_framework_jwt.settings import api_settings
-from api.apps.transactions.decorators import validated_data
-from rest_framework.response import Response
-from rest_framework import status
-
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -16,7 +15,7 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 class TransactionListCreateAPIView(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     @validated_data
     def post(self, request, *args, **kwargs):
@@ -35,7 +34,7 @@ class TransactionListCreateAPIView(generics.ListCreateAPIView):
 class TransactionDetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         try:

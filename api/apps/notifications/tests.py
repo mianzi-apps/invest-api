@@ -1,14 +1,14 @@
-from rest_framework.test import APIClient, APITestCase, force_authenticate
-from api.apps.projects.models import Project, ProjectProfile
-from api.apps.notifications.models import Notification
-from django.urls import reverse
-from api.apps.projects.serializers import ProjectsSerializer, ProjectProfileSerializer
-from api.apps.notifications.serializers import NotificationSerializer
-from rest_framework import status
-from api.apps.authentication.tests import AuthBaseTest
-from api.apps.authentication.models import User
 import json
-import datetime
+
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+
+from api.apps.authentication.models import User
+from api.apps.notifications.models import Notification
+from api.apps.notifications.serializers import NotificationSerializer
+from api.apps.projects.models import Project, ProjectProfile
+from api.apps.projects.serializers import ProjectProfileSerializer
 
 
 class BaseTest(APITestCase):
@@ -91,8 +91,8 @@ class NotificationTests(BaseTest):
             'profile_id': self.profile.pk,
             'notification_text': 'Harvest time',
         }),
-            content_type='application/json'
-        )
+                                    content_type='application/json'
+                                    )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_notification_details(self):
@@ -111,8 +111,8 @@ class NotificationTests(BaseTest):
         response = self.client.put(url, data=json.dumps({
             'notification_text': 'Harvest is not ready',
         }),
-            content_type='application/json'
-        )
+                                   content_type='application/json'
+                                   )
         expected = Notification.objects.get(pk=1)
         self.assertEqual(expected.notification_text, 'Harvest is not ready')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

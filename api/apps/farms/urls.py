@@ -1,5 +1,6 @@
 # urls.py file in the posts folder
 from django.urls import path
+
 from api.apps.farms.views import FarmDetailsView, ListCreateFarmsView, ListCreateLocationsView, LocationDetails
 
 urlpatterns = [

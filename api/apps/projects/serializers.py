@@ -1,25 +1,19 @@
 from rest_framework import serializers
-<<<<<<< HEAD:api/projects/serializers.py
-from .models import (Project,
-                    ProjectAnimal, 
-                    ProjectPlant, 
-                    ProjectEarning, 
-                    ProjectExpense, 
-                    ProjectProfile,
-                    ProjectProfileImage)
 
-from animals.serializers import AnimalSerializer
-from plants.serializers import PlantSerializer
-=======
-from api.apps.projects.models import Project, ProjectAnimal, ProjectPlant, ProjectEarning, ProjectExpense, ProjectProfile, ProjectProfileImage
-from api.apps.animals.serializers import AnimalSerializer
-from api.apps.plants.serializers import PlantSerializer
->>>>>>> Extending the user model:api/apps/projects/serializers.py
+from api.apps.projects.models import (Project,
+                                      ProjectAnimal,
+                                      ProjectPlant,
+                                      ProjectEarning,
+                                      ProjectExpense,
+                                      ProjectProfile,
+                                      ProjectProfileImage)
+
 
 class ProjectAnimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectAnimal
         fields = ('animal_id', 'no')
+
 
 class ProjectPlantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,27 +24,26 @@ class ProjectPlantSerializer(serializers.ModelSerializer):
 class ProjectsSerializer(serializers.ModelSerializer):
     animals = ProjectAnimalSerializer(many=True)
     plants = ProjectPlantSerializer(many=True)
-    
+
     class Meta:
         model = Project
-        fields = ('alias', 'description', 'start_date', 'harvest_start_date', 
-                'estimated_harvest_duration', 'actual_harvest_end_date', 'animals', 'plants')
+        fields = ('alias', 'description', 'start_date', 'harvest_start_date',
+                  'estimated_harvest_duration', 'actual_harvest_end_date', 'animals', 'plants')
 
-    def create(self, validated_data): 
+    def create(self, validated_data):
         animals_data = validated_data.pop('animals')
         plants_data = validated_data.pop('plants')
-        
+
         project = Project.objects.create(**validated_data)
-        
+
         for animal in animals_data:
             ProjectAnimal.objects.create(project_id=project, **animal)
-        
+
         for plant in plants_data:
             ProjectPlant.objects.create(project_id=project, **plant)
-        
+
         return project
 
-        
 
 class ProfileImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,10 +53,11 @@ class ProfileImageSerializer(serializers.ModelSerializer):
 
 class ProjectProfileSerializer(serializers.ModelSerializer):
     images = ProfileImageSerializer(many=True)
+
     class Meta:
         model = ProjectProfile
-        fields = ('project_id', 'project_stage' ,'stage_caption' , 'detailed_explanation', 'images')
-        
+        fields = ('project_id', 'project_stage', 'stage_caption', 'detailed_explanation', 'images')
+
     def create(self, validated_data):
         images_data = validated_data.pop('images')
         profile = ProjectProfile.objects.create(**validated_data)

@@ -18,4 +18,5 @@ def validate_request_data(fn):
                 status=status.HTTP_400_BAD_REQUEST
             )
         return fn(*args, **kwargs)
+
     return decorated

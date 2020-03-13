@@ -1,4 +1,5 @@
 from django.urls import path
+
 from api.apps.structures.views import StructuresDetailsView, StructuresListCreateView
 
 urlpatterns = [

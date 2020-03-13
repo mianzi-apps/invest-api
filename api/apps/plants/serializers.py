@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from api.apps.plants.models import Plant
+
 
 class PlantSerializer(serializers.ModelSerializer):
     class Meta:

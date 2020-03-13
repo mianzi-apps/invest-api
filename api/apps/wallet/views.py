@@ -1,11 +1,11 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.views import Response, status
-from api.apps.wallet.serializers import WalletSerializer
-from api.apps.wallet.models import Wallet
-from api.apps.authentication.models import User
 from rest_framework_jwt.settings import api_settings
+
+from api.apps.authentication.models import User
 from api.apps.wallet.decorators import validate_request_data
+from api.apps.wallet.models import Wallet
+from api.apps.wallet.serializers import WalletSerializer
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -19,7 +19,7 @@ class WalletListView(generics.ListCreateAPIView):
     """
     queryset = Wallet.objects.all()
     serializer_class = WalletSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     @validate_request_data
     def post(self, request, *args, **kwargs):
@@ -27,7 +27,7 @@ class WalletListView(generics.ListCreateAPIView):
         balance = request.data.get('balance', '')
 
         Wallet.objects.create(user_id=User.objects.get(pk=user_id),
-                            balance=balance)
+                              balance=balance)
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -39,7 +39,7 @@ class WalletDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Wallet.objects.all()
     serializer_class = WalletSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         try:

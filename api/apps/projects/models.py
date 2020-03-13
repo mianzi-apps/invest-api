@@ -1,6 +1,7 @@
 from django.db import models
-from api.apps.plants.models import Plant
+
 from api.apps.animals.models import Animal
+from api.apps.plants.models import Plant
 
 
 class Project(models.Model):
@@ -21,6 +22,7 @@ class Project(models.Model):
     @property
     def animals(self):
         return ProjectAnimal.objects.filter(project_id=self.pk)
+
 
 class ProjectProfile(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)

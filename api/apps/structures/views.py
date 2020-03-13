@@ -1,17 +1,16 @@
-from django.shortcuts import render
-from rest_framework import generics
-from api.apps.structures.models import Structure
-from api.apps.farms.models import Farm
-from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.views import Response, status
 from rest_framework_jwt.settings import api_settings
-from api.apps.structures.serializers import StructuresSerializer
+
+from api.apps.farms.models import Farm
 from api.apps.structures.decorators import validate_request_data
+from api.apps.structures.models import Structure
+from api.apps.structures.serializers import StructuresSerializer
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
 
 class StructuresListCreateView(generics.ListCreateAPIView):
     """
@@ -20,8 +19,8 @@ class StructuresListCreateView(generics.ListCreateAPIView):
     """
     queryset = Structure.objects.all()
     serializer_class = StructuresSerializer
-    permission_classes = (permissions.IsAuthenticated, )
-    
+    permission_classes = (permissions.IsAuthenticated,)
+
     @validate_request_data
     def post(self, request, *args, **kwargs):
         alias = request.data.get("alias", "")
@@ -32,12 +31,12 @@ class StructuresListCreateView(generics.ListCreateAPIView):
         farm_id = request.data.get("farm_id", '')
 
         Structure.objects.create(alias=alias,
-                                purpose=purpose,
-                                capacity=capacity, 
-                                dimensions=dimensions,
-                                setup_cost=setup_cost,
-                                farm_id=Farm.objects.get(pk=farm_id)
-                                )
+                                 purpose=purpose,
+                                 capacity=capacity,
+                                 dimensions=dimensions,
+                                 setup_cost=setup_cost,
+                                 farm_id=Farm.objects.get(pk=farm_id)
+                                 )
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -54,7 +53,7 @@ class StructuresDetailsView(generics.RetrieveUpdateDestroyAPIView):
         try:
             structure = Structure.objects.get(pk=kwargs['pk'])
             return Response(StructuresSerializer(structure).data)
-        
+
         except Structure.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
@@ -70,7 +69,7 @@ class StructuresDetailsView(generics.RetrieveUpdateDestroyAPIView):
             serializer = StructuresSerializer()
             update_farm = serializer.update(structure, request.data)
             return Response(StructuresSerializer(structure).data)
-        
+
         except Structure.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
@@ -91,5 +90,4 @@ class StructuresDetailsView(generics.RetrieveUpdateDestroyAPIView):
                 data={
                     "message": "structure with id {} does not exist".format(kwargs['pk'])
                 }
-            )    
-
+            )

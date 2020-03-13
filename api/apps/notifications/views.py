@@ -1,13 +1,12 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework_jwt.settings import api_settings
+
+from api.apps.notifications.decorators import validated_data
 from api.apps.notifications.models import Notification
 from api.apps.notifications.serializers import NotificationSerializer
 from api.apps.projects.models import ProjectProfile
-from rest_framework_jwt.settings import api_settings
-from api.apps.notifications.decorators import validated_data
-from rest_framework.response import Response
-from rest_framework import status
-
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -17,7 +16,7 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 class NotificationListCreateAPIView(generics.ListCreateAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     @validated_data
     def post(self, request, *args, **kwargs):
@@ -34,7 +33,7 @@ class NotificationListCreateAPIView(generics.ListCreateAPIView):
 class NotificationDetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         try:

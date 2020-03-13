@@ -1,18 +1,19 @@
-from rest_framework.test import APIClient, APITestCase, force_authenticate
-from api.apps.transactions.models import Transaction
-from django.urls import reverse
-from api.apps.transactions.serializers import TransactionSerializer
-from rest_framework import status
-from api.apps.authentication.tests import AuthBaseTest
-from api.apps.authentication.models import User
 import json
+
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+
+from api.apps.authentication.models import User
+from api.apps.transactions.models import Transaction
+from api.apps.transactions.serializers import TransactionSerializer
 
 
 class BaseTest(APITestCase):
     client = APIClient()
 
     @staticmethod
-    def create_transaction(amount='', type='', status="",):
+    def create_transaction(amount='', type='', status="", ):
         Transaction.objects.create(
             amount=amount,
             type=type,
@@ -50,12 +51,12 @@ class TransactionTests(BaseTest):
             'type': 'deposit',
             'status': 'pending',
         }),
-        content_type='application/json'
-        )
+                                    content_type='application/json'
+                                    )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_transaction_details(self):
-        url = reverse('transaction-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('transaction-details', kwargs={'version': 'v1', 'pk': 1})
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         expected = Transaction.objects.get(pk=1)
@@ -63,22 +64,21 @@ class TransactionTests(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_transaction_details(self):
-        url = reverse('transaction-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('transaction-details', kwargs={'version': 'v1', 'pk': 1})
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(url, data = json.dumps({
+        response = self.client.put(url, data=json.dumps({
             'amount': 7000.00,
         }),
-        content_type='application/json' 
-        )
+                                   content_type='application/json'
+                                   )
         expected = Transaction.objects.get(pk=1)
         self.assertEqual(expected.amount, 7000.00)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_transaction(self):
-        url = reverse('transaction-details', kwargs={'version':'v1', 'pk':1})
+        url = reverse('transaction-details', kwargs={'version': 'v1', 'pk': 1})
         transactions_before_delete = Transaction.objects.all().count()
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(url)
         transactions_after_delete = Transaction.objects.all().count()
         self.assertNotEqual(transactions_before_delete, transactions_after_delete)
-

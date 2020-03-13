@@ -1,9 +1,11 @@
-from django.test import TestCase
+import json
+
 from django.urls import reverse
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.views import status
+
 from api.apps.authentication.models import User
-import json
+
 
 class AuthBaseTest(APITestCase):
     client = APIClient()
@@ -12,20 +14,20 @@ class AuthBaseTest(APITestCase):
         url = reverse(
             'auth-login',
             kwargs={
-                'version':'v1'
+                'version': 'v1'
             }
         )
         return self.client.post(url,
-        data=json.dumps({
-            'email': email,
-            'password': password
-        }),
-        content_type="application/json"
-        )
+                                data=json.dumps({
+                                    'email': email,
+                                    'password': password
+                                }),
+                                content_type="application/json"
+                                )
 
     def setUp(self):
         # add test data
-        
+
         # create a admin user
         self.user = User.objects.create_superuser(
             email="test@mail.com",
@@ -35,10 +37,12 @@ class AuthBaseTest(APITestCase):
             contact="0750532902"
         )
 
+
 class AuthLoginTest(AuthBaseTest):
     """
     tests auth/login/ endpoint
     """
+
     def test_login_user_with_valid_credentials(self):
         response = self.login_user("test@mail.com", 'testing')
         # assert token key exists
@@ -54,6 +58,7 @@ class AuthRegisterTest(AuthBaseTest):
     """
     tests auth/register endpoint
     """
+
     def test_register_user_with_valid_data(self):
         url = reverse(
             'auth-register',
@@ -68,12 +73,12 @@ class AuthRegisterTest(AuthBaseTest):
                 'password': 'new_pass',
                 'first_name': "test",
                 'last_name': "user",
-                'contact':"0750532902"
+                'contact': "0750532902"
             }),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    
+
     def test_register_user_with_invalid_data(self):
         url = reverse(
             'auth-register',
@@ -85,10 +90,10 @@ class AuthRegisterTest(AuthBaseTest):
             url,
             data=json.dumps({
                 'email': '',
-                'first_name':'',
-                'last_name':'',
+                'first_name': '',
+                'last_name': '',
                 'password': '',
-                'contact':''
+                'contact': ''
             }),
             content_type='application/json'
         )

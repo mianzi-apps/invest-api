@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Animal(models.Model):
     english_name = models.CharField(max_length=255)
     scientific_name = models.CharField(max_length=255)

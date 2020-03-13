@@ -1,11 +1,11 @@
-from django.shortcuts import render
-from rest_framework import generics, permissions
-from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework import status
-from rest_framework_jwt.settings import api_settings
+from rest_framework.response import Response
+
+from api.apps.animals.decorators import validate_animal_data
 from api.apps.animals.models import Animal
 from api.apps.animals.serializers import AnimalSerializer
-from api.apps.animals.decorators import validate_animal_data
+
 
 # Get the JWT settings
 # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -18,14 +18,15 @@ class AnimalListCreateAPIView(generics.ListCreateAPIView):
     """
     queryset = Animal.objects.all()
     serializer_class = AnimalSerializer
+
     # permission_classes = (permissions.IsAuthenticated, )
 
     @validate_animal_data
     def post(self, request, *args, **kwargs):
-        english_name = request.data.get('english_name','')
+        english_name = request.data.get('english_name', '')
         scientific_name = request.data.get('scientific_name', '')
         estimated_maturity_period = request.data.get('estimated_maturity_period', 0)
-        
+
         Animal.objects.create(
             english_name=english_name,
             scientific_name=scientific_name,
@@ -52,13 +53,12 @@ class AnimalDetailsAPIView(generics.RetrieveUpdateDestroyAPIView):
         try:
             animal = Animal.objects.get(pk=kwargs['pk'])
             serializer = AnimalSerializer()
-            updated_animal= serializer.update(animal, request.data)
+            updated_animal = serializer.update(animal, request.data)
             return Response(data=AnimalSerializer(updated_animal).data, status=status.HTTP_200_OK)
         except Animal.DoesNotExist:
             return Response(data={
                 "message": 'animal with id {} does not exist'.format(kwargs['pk'])
             })
-
 
     def delete(self, request, *args, **kwargs):
         try:

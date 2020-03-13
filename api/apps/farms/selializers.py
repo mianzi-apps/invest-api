@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from api.apps.farms.models import Farm, Location
 
 

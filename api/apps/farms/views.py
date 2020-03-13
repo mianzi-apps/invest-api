@@ -1,10 +1,10 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions
 from rest_framework.views import Response, status
+from rest_framework_jwt.settings import api_settings
+
+from api.apps.farms.decorators import validate_request_data, validate_location_request_data
 from api.apps.farms.models import Farm, Location
 from api.apps.farms.selializers import FarmsSelializer, LocationSerializer
-from rest_framework_jwt.settings import api_settings
-from api.apps.farms.decorators import validate_request_data, validate_location_request_data
 
 # Get the JWT settings
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -18,7 +18,7 @@ class ListCreateFarmsView(generics.ListCreateAPIView):
     """
     queryset = Farm.objects.all()
     serializer_class = FarmsSelializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         name = request.data.get('name', '')
@@ -91,7 +91,7 @@ class ListCreateLocationsView(generics.ListCreateAPIView):
     """
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     @validate_location_request_data
     def post(self, request, *args, **kwargs):

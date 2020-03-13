@@ -1,10 +1,10 @@
-from django.shortcuts import render
 from rest_framework import generics
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+
+from api.apps.plants.decorators import validate_plant_data
 from api.apps.plants.models import Plant
 from api.apps.plants.serializers import PlantSerializer
-from api.apps.plants.decorators import validate_plant_data
 
 
 class PlantListCreateAPIView(generics.ListCreateAPIView):
@@ -13,10 +13,10 @@ class PlantListCreateAPIView(generics.ListCreateAPIView):
 
     @validate_plant_data
     def post(self, request, *args, **kwargs):
-        english_name = request.data.get('english_name','')
+        english_name = request.data.get('english_name', '')
         scientific_name = request.data.get('scientific_name', '')
         estimated_maturity_period = request.data.get('estimated_maturity_period', 0)
-        
+
         Plant.objects.create(
             english_name=english_name,
             scientific_name=scientific_name,
@@ -43,7 +43,7 @@ class PlantDetailsAPIView(generics.RetrieveUpdateDestroyAPIView):
         try:
             plant = Plant.objects.get(pk=kwargs['pk'])
             serializer = PlantSerializer()
-            updated_plant= serializer.update(plant, request.data)
+            updated_plant = serializer.update(plant, request.data)
             return Response(data=PlantSerializer(updated_plant).data, status=status.HTTP_200_OK)
         except Plant.DoesNotExist:
             return Response(data={

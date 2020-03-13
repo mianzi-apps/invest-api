@@ -1,7 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
+from django.db import models
 
 
 class UserManager(BaseUserManager):
@@ -13,6 +13,7 @@ class UserManager(BaseUserManager):
     All we have to do is override the `create_user` function which we will use
     to create `User` objects.
     """
+
     def create_user(self, first_name, last_name, email, contact, password=None):
         """
         Creates and saves a User with the given email, firstname, lastname, contact and password.
@@ -37,11 +38,11 @@ class UserManager(BaseUserManager):
         Creates and saves a superuser with the given email, contact and password.
         """
         user = self.create_user(first_name=first_name,
-                             last_name=last_name,
-                             email=email,
-                             password=password,
-                             contact=contact,
-                             )
+                                last_name=last_name,
+                                email=email,
+                                password=password,
+                                contact=contact,
+                                )
         user.is_admin = True
         user.save()
         return user
@@ -60,6 +61,7 @@ class UserManager(BaseUserManager):
             email = '@'.join([email_name, domain_part.lower()])
         return email
 
+
 class User(AbstractBaseUser):
     email = models.EmailField(
         verbose_name='email address',
@@ -77,7 +79,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['contact', 'first_name', 'last_name','password']
+    REQUIRED_FIELDS = ['contact', 'first_name', 'last_name', 'password']
 
     def __str__(self):
         """
@@ -85,7 +87,7 @@ class User(AbstractBaseUser):
         This string is used when a `User` is printed in the console.
         """
         return self.email
-    
+
     def get_full_name(self):
         # The user is identified by their first and last name
         return "{0} {0}".format(self.first_name, self.last_name)
@@ -98,7 +100,7 @@ class User(AbstractBaseUser):
         "Does the user have a specific permission?"
         # Simplest possible answer: Yes, always
         return True
-    
+
     def has_module_perms(self, app_label):
         "Does the user have permissions to view the app `app_label`?"
         # Simplest possible answer: Yes, always

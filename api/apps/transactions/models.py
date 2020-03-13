@@ -3,13 +3,13 @@ from django.db import models
 
 class Transaction(models.Model):
     TYPES = (
-        ('D' ,'deposit'),
-        ('W','withdraw')
+        ('D', 'deposit'),
+        ('W', 'withdraw')
     )
     STATUSES = (
-        ('pe','pending'),
-        ('co','complete'),
-        ('ca','canceled')
+        ('pe', 'pending'),
+        ('co', 'complete'),
+        ('ca', 'canceled')
     )
     amount = models.DecimalField(max_digits=40, decimal_places=2)
     date = models.DateField(auto_now_add=True)
